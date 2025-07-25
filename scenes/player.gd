@@ -11,6 +11,7 @@ const RECOIL_MULTIPLIER := 0.7  # lower = less powerful, 1.0 = full
 @onready var sprite = $AnimatedSprite2D
 @onready var crosshair = $Crosshair
 
+var air_shot_used := false
 var just_recoiled := false
 var last_aim_direction := Vector2.RIGHT  # default aim direction if stick is idle
 
@@ -45,7 +46,7 @@ func _physics_process(delta: float) -> void:
 		var projectile_speed = p.speed
 		p.launch(launch_direction)
 
-		if is_on_floor():
+		if is_on_floor() or not air_shot_used:
 			# Compute opposite recoil
 			var recoil_vector = -launch_direction * projectile_speed * RECOIL_MULTIPLIER
 			# Boost horizontal component significantly
@@ -53,16 +54,8 @@ func _physics_process(delta: float) -> void:
 
 			# Apply the final velocity
 			velocity = recoil_vector
-
-
-			var extra_horizontal := 0.0 * RECOIL_MULTIPLIER
-			if recoil_vector.x < 0:
-				velocity.x -= extra_horizontal
-			elif recoil_vector.x > 0:
-				velocity.x += extra_horizontal
-			else:
-				velocity.x += extra_horizontal * (-1 if sprite.flip_h else 1)
-
+			if not is_on_floor():
+				air_shot_used = true
 			just_recoiled = true
 
 	# Movement
@@ -88,6 +81,10 @@ func _physics_process(delta: float) -> void:
 
 	# Reset recoil flag
 	just_recoiled = false
+	
+	#Reset air shot on touching ground
+	if is_on_floor():
+		air_shot_used = false
 
 	# Debug: print horizontal velocity
 	print("vel.x =", velocity.x)
