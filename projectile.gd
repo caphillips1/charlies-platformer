@@ -1,26 +1,29 @@
 extends Area2D
 
-@export var speed := 600.0
+@export var speed := 500.0
 var direction := Vector2.ZERO
 var velocity := Vector2.ZERO
 
-# Called when the node enters the scene tree for the first time.
+# Connect signals when the projectile is ready.
 func _ready() -> void:
-	pass # Replace with function body.
+	# Connect to body_entered and area_entered only if they aren’t already wired up.
+	if not is_connected("body_entered", Callable(self, "_on_body_entered")):
+		connect("body_entered", Callable(self, "_on_body_entered"))
+	if not is_connected("area_entered", Callable(self, "_on_area_entered")):
+		connect("area_entered", Callable(self, "_on_area_entered"))
 
-
-# Called every frame. 'delta' is the elapsed time since the previous frame.
 func _physics_process(delta: float) -> void:
-	#position += direction * speed * delta
-	
-	#Apply gravity
-	velocity.y += gravity * delta
-	#Move projectile
+	# Move the projectile according to its velocity.
 	position += velocity * delta
 
-func launch(direction: Vector2):
-	#Set initial velocity
-	velocity = direction.normalized() * speed
+func launch(dir: Vector2):
+	direction = dir.normalized()
+	velocity = direction * speed
 
-func _on_body_entered(body: Node2D) -> void:
+func _on_body_entered(_body = null) -> void:
+	# Remove the projectile if it hits a physics body (e.g. an enemy).
+	queue_free()
+
+func _on_area_entered(_area = null) -> void:
+	# Remove the projectile if it hits an area (e.g. the TileMap’s colliders).
 	queue_free()
