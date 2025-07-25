@@ -202,7 +202,7 @@ script = ExtResource("1_g2els")
 sprite_frames = SubResource("SpriteFrames_urp6f")
 animation = &"idle"
 autoplay = "idle"
-frame_progress = 0.00673185
+frame_progress = 0.946179
 metadata/_edit_lock_ = true
 
 [node name="CollisionShape2D" type="CollisionShape2D" parent="."]
